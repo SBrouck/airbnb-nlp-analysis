@@ -190,4 +190,4 @@ reports/*.gif
 reports/*.pdf
 
 # Keep the lightweight insights file
-!reports/lightweight_business_insights.txt 
+!reports/lightweight_business_insights.txt *.ipynb
