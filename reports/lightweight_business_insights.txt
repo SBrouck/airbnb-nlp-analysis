@@ -1,0 +1,61 @@
+================================================================================
+AIRBNB BUSINESS INSIGHTS REPORT (Lightweight Analysis)
+================================================================================
+
+1. OVERVIEW
+--------------------
+Total Reviews Analyzed: 1,502,058
+Positive Reviews: 835,106 (55.6%)
+Negative Reviews: 2,396
+Average Sentiment Score: 0.070
+Average Comment Length: 246 characters
+
+2. AMENITIES ANALYSIS
+-------------------------
+Most Valued Amenities (by sentiment impact):
+  • ac: -0.017 impact score (69.7% mentions)
+  • pool: -0.018 impact score (1.6% mentions)
+  • gym: -0.028 impact score (0.2% mentions)
+  • parking: -0.030 impact score (12.2% mentions)
+  • kitchen: -0.031 impact score (8.1% mentions)
+
+3. HOST QUALITIES
+--------------------
+Top Host Qualities (Positive Reviews):
+  • friendly: 219794 mentions
+  • responsive: 128285 mentions
+  • helpful: 76140 mentions
+  • communicative: 22353 mentions
+  • professional: 8746 mentions
+
+4. COMMON PROBLEMS
+--------------------
+Most Common Issues (Negative Reviews):
+  • cleanliness: 216 mentions
+  • comfort: 150 mentions
+  • noise: 126 mentions
+  • temperature: 91 mentions
+  • smell: 72 mentions
+
+5. LOCATION FEATURES
+-------------------------
+Most Valued Location Features:
+  • downtown: -0.020 impact score (5.2% mentions)
+  • restaurants: -0.023 impact score (11.3% mentions)
+  • walking: -0.024 impact score (25.3% mentions)
+  • shopping: -0.028 impact score (10.1% mentions)
+  • transport: -0.030 impact score (4.8% mentions)
+
+6. SEASONAL PATTERNS
+-------------------------
+Peak Months: [8, 7, 9]
+Low Season Months: [12, 2, 1]
+
+7. BUSINESS RECOMMENDATIONS
+------------------------------
+• Focus on responsive and friendly communication
+• Prioritize basic amenities: WiFi, kitchen, parking
+• Emphasize location benefits and accessibility
+• Address cleanliness and noise issues proactively
+• Consider seasonal pricing strategies
+• Maintain professional and organized operations
