@@ -1,0 +1,18 @@
+{
+  "listings": 2755,
+  "english_reviews_in_listings": 378377,
+  "bottom_decile_threshold": 4.63,
+  "bottom_decile_listings": 285,
+  "legacy_ac_share": 0.7115696077741004,
+  "word_boundary_ac_share": 0.0073938455038377576,
+  "legacy_score_corr_with_length": -0.5365550898894691,
+  "vader_corr_with_length": 0.6386989191814579,
+  "aspect_review_rates": {
+    "cleanliness": 0.014915951592946172,
+    "checkin": 0.001773013972859054,
+    "communication": 0.0013102699005100244,
+    "location": 0.007504501695051656,
+    "accuracy": 0.000661422233846711,
+    "value": 0.0019239087790598247
+  }
+}

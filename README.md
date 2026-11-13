@@ -1,185 +1,85 @@
-# Airbnb Reviews NLP Analysis for Business Insights
+# Do Review Texts Track Star Sub-Scores? Lexicon Sentiment and Aspect Complaints in San Francisco Airbnb Reviews
 
-## 📊 Project Overview
+## Abstract
 
-This project analyzes **1.5M+ Airbnb reviews** from California to extract actionable business insights for launching and optimizing an Airbnb business. Using advanced NLP techniques, we identify customer service patterns, competitive advantages, and areas for improvement to help hosts succeed in the competitive short-term rental market.
+Guest reviews on Airbnb come with free text and with star sub-scores (cleanliness, check-in, communication, location, accuracy, value). We ask how much of the listing-level star ratings can be recovered from the text with transparent, unsupervised signals, and whether aspect-specific complaint lexicons track their own sub-score rather than overall satisfaction. On the Inside Airbnb San Francisco snapshot of 2026-09-14 (397,628 English reviews; 2,755 listings with at least 20 of them), the mean VADER sentiment of a listing's reviews has a Spearman correlation of 0.67 with its overall rating and separates the bottom decile of listings with AUROC 0.904. After partialling out the overall rating, five of six aspect lexicons correlate most negatively with their matching sub-score, the clearest being location (partial ρ = −0.27), communication (−0.19) and cleanliness (−0.18). The keyword scorer of the first version of this repository is weaker (AUROC 0.843) and has a strong length bias. Limitations: one city, hand-written lexicons with low recall, and text and stars written by the same guests.
 
-## 🎯 Key Business Questions Answered
+## 1. Problem
 
-- **What makes successful hosts stand out?** - Communication patterns and responsiveness strategies
-- **What do guests value most?** - Amenities, location benefits, and service quality
-- **How to avoid common pitfalls?** - Problem resolution and guest satisfaction drivers
-- **Where are the market opportunities?** - Underserved niches and competitive advantages
+For each listing, Airbnb publishes the average star rating overall and per aspect, alongside every review text. Text-derived signals are useful only if they measure something the stars also measure. We test two properties:
 
-## 📈 Key Findings
+1. **Convergent validity.** Does listing-level text sentiment rank listings like their overall rating?
+2. **Discriminant validity.** Does a lexicon written for one aspect (for example cleanliness complaints) carry information about its own sub-score beyond the overall rating?
 
-- **1,502,058 reviews** analyzed from California Airbnb listings
-- **12 key metrics** tracked including sentiment, response times, and guest satisfaction
-- **8 comprehensive visualizations** covering all aspects of the business
-- **Actionable recommendations** for new and existing hosts
+## 2. Data
 
-## 🚀 Quick Start
+[Inside Airbnb](https://insideairbnb.com/get-the-data/), San Francisco, snapshot 2026-09-14: `reviews.csv.gz` (452,048 non-empty reviews, 2009 to 2026) and `listings.csv.gz` (7,405 listings). Reviewer names and ids are never loaded (`usecols`), raw files stay in the git-ignored `data/` folder, and no review text is quoted in this repository. Reviews are kept if they are in English, by a function-word heuristic (`reviewtext.data.is_english`): 397,628 reviews (88%). A listing enters the analysis if it has at least 20 English reviews and all seven sub-scores: 2,755 listings, 378,377 reviews, median 81 reviews per listing.
 
-### Prerequisites
-- Python 3.8+
-- 8GB+ RAM (for processing large dataset)
-- Git
+## 3. Method
 
-### Installation
+**Review-level signals.**
+- *VADER* compound sentiment (Hutto and Gilbert, ICWSM 2014), in [−1, 1].
+- *Aspect complaint lexicons*: one regular expression per sub-score, matched on word boundaries (`src/reviewtext/scoring.py`), for example *dirty, stained, mold, smell* for cleanliness, or *unsafe, sketchy, break-in* for location. A review is flagged if it matches.
+- *Legacy keyword score*: the scorer of the first version of this repository, kept verbatim: substring counts of 17 positive and 16 negative words, divided by the number of words.
 
-1. **Clone the repository**
-   ```bash
-   git clone <your-repo-url>
-   cd airbnb-nlp-analysis
-   ```
+**Listing-level metrics.** Mean VADER, share of reviews with VADER < −0.05, mean legacy score, and the share of reviews flagged by each lexicon (and by any lexicon).
 
-2. **Create virtual environment**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+**Evaluation.** Spearman correlation with each sub-score; partial Spearman correlation given the overall rating (ranks residualised on the rank of the overall rating); AUROC for detecting listings in the bottom decile of overall rating (≤ 4.63, 285 listings). Confidence intervals: 1,000 bootstrap resamples of listings.
 
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
+## 4. Results
 
-4. **Download spaCy model**
-   ```bash
-   python -m spacy download en_core_web_sm
-   ```
+<p align="center"><img src="figures/fig1_correlations.svg" width="780"></p>
 
-### Quick Analysis
+*Figure 1. (a) Spearman correlation between listing-level text metrics and star scores. (b) Partial correlation given the overall rating; boxes mark each lexicon's own sub-score.*
 
-Run the lightweight analysis to get immediate insights:
-```bash
-python lightweight_analysis.py
+**Sentiment tracks overall rating.** Mean VADER correlates with every sub-score (ρ = 0.50 to 0.67), most strongly with the overall rating. All lexicons correlate negatively with all sub-scores (Fig. 1a): sub-scores are themselves highly correlated, so raw correlations cannot show aspect specificity.
+
+**Lexicons are aspect-specific after controlling for the overall rating.** In Fig. 1b, the most negative entry of each row is the lexicon's own sub-score for cleanliness, check-in, communication, location and accuracy. The value lexicon is the exception. Partial correlations with the own sub-score and 95% bootstrap intervals:
+
+| Lexicon | Reviews flagged | Partial ρ, own sub-score | 95% CI |
+|---|---|---|---|
+| Location | 0.75% | −0.274 | [−0.313, −0.235] |
+| Communication | 0.13% | −0.187 | [−0.214, −0.159] |
+| Cleanliness | 1.49% | −0.181 | [−0.220, −0.143] |
+| Accuracy | 0.07% | −0.097 | [−0.131, −0.065] |
+| Check-in | 0.18% | −0.049 | [−0.083, −0.014] |
+| Value | 0.19% | −0.041 | [−0.072, −0.010] |
+
+*Table 1. From `results/partial_own_subscore_ci.csv` and `results/audit.json`.*
+
+<p align="center"><img src="figures/fig2_auroc.svg" width="420"></p>
+
+*Figure 2. AUROC for detecting bottom-decile listings by overall rating, with 95% bootstrap intervals.*
+
+**Detecting low-rated listings.** Mean VADER reaches AUROC 0.904 [0.883, 0.924] and the share of reviews flagged by any complaint lexicon 0.897 [0.876, 0.916]. The legacy keyword score reaches 0.843 [0.818, 0.865].
+
+**Audit of the first version.** The first version of this repository reported "insights" from the legacy scorer on 1.5 million California reviews. Those numbers depend on a merged multi-city file that is not available and were not re-verified. On this corpus, two defects of that method are measurable (`results/audit.json`). Its air-conditioning rule matches the substring `ac`, which occurs in words such as *place* and *back*, and flags 71.2% of reviews against 0.74% with a word-boundary rule. Its score is divided by review length, so it falls as reviews get longer (Spearman ρ = −0.54 with word count), while VADER rises with length (ρ = +0.64). Both length dependences confound comparisons between listings whose guests write differently.
+
+## 5. Limitations
+
+- One city and one snapshot. Sub-scores are lifetime averages published by Airbnb and are heavily concentrated near 5 (median overall rating 4.89).
+- Text and stars come from the same guests at the same time, so this measures agreement between two channels of one judgement, not prediction of future ratings.
+- Lexicons are hand-written and have low recall (0.07% to 1.5% of reviews flagged); negation is not handled (*not dirty* is flagged). A supervised aspect classifier or an instruction-tuned model would likely raise recall; neither is evaluated here.
+- The language filter is heuristic; short or mixed-language reviews are dropped.
+- VADER grows with review length; no length adjustment is applied to the listing means.
+
+## Reproducibility
+
+Python 3.12. The raw files are about 55 MB; scoring takes about 1.5 minutes on a laptop.
+
+```sh
+make env        # .venv with pinned requirements
+make data       # download the Inside Airbnb snapshot to data/raw/ (git-ignored)
+make analysis   # results/*.csv, results/*.json
+make figures    # figures/*.svg
+make test
 ```
 
-Count total reviews:
-```bash
-python count_reviews.py
-```
+| Path | Content |
+|---|---|
+| `src/reviewtext/data.py` | Download, cleaning, language filter (reviewer columns are never read) |
+| `src/reviewtext/scoring.py` | VADER, aspect lexicons, legacy scorer |
+| `src/reviewtext/analysis.py` | Listing aggregation, correlations, AUROC, bootstrap |
+| `src/reviewtext/figures.py` | Figures |
 
-## 📁 Project Structure
-
-```
-airbnb-nlp-analysis/
-├── 📊 data/
-│   ├── raw/                    # Original cleaned_reviews.csv (823MB)
-│   └── processed/              # Processed and analyzed data
-├── 📓 notebooks/
-│   └── 01_quick_analysis.ipynb # Interactive analysis notebook
-├── 🔧 src/
-│   ├── nlp/                    # NLP processing modules
-│   │   └── text_processor.py   # Text cleaning and analysis
-│   ├── analysis/               # Business analysis modules
-│   ├── visualization/          # Plotting and charts
-│   └── utils/                  # Utility functions
-├── 📈 reports/                 # Generated insights and visualizations
-│   ├── 01_overview_dashboard.png
-│   ├── 02_amenities_analysis.png
-│   ├── 03_host_qualities.png
-│   ├── 04_problems_analysis.png
-│   ├── 05_location_benefits.png
-│   ├── 06_seasonal_analysis.png
-│   ├── 07_business_recommendations.png
-│   ├── 08_competitive_advantages.png
-│   └── lightweight_business_insights.txt
-├── 🐍 Python_Airbnb.ipynb      # Main analysis notebook
-├── 📋 requirements.txt         # Python dependencies
-└── 📖 README.md               # This file
-```
-
-## 📊 Analysis Components
-
-### 1. Customer Service Optimization
-- **Host responsiveness patterns** - What makes hosts stand out
-- **Communication effectiveness** - Key phrases that drive satisfaction
-- **Problem resolution** - How successful hosts handle issues
-
-### 2. Competitive Advantages
-- **Unique selling propositions** - What guests value most
-- **Location benefits** - Transportation, amenities, neighborhood features
-- **Property features** - Most appreciated amenities and characteristics
-
-### 3. Anticipating Client Needs
-- **Seasonal patterns** - What guests need at different times
-- **Guest type preferences** - Business vs leisure traveler needs
-- **Unmet expectations** - Common complaints and gaps
-
-### 4. Market Opportunities
-- **Underserved niches** - Gaps in the market
-- **Pricing insights** - Value perception and willingness to pay
-- **Service differentiation** - Ways to stand out from competition
-
-## 🔍 Key Insights Extracted
-
-### Customer Service Excellence
-- **Host communication patterns** that lead to positive reviews
-- **Response time optimization** strategies
-- **Personalization techniques** that guests appreciate
-
-### Property Optimization
-- **Amenity importance ranking** based on guest feedback
-- **Location advantages** and accessibility features
-- **Property maintenance** priorities from guest complaints
-
-### Competitive Positioning
-- **Market gaps** and underserved guest segments
-- **Pricing strategies** based on value perception
-- **Service differentiation** opportunities
-
-### Operational Excellence
-- **Check-in/check-out** process optimization
-- **Housekeeping standards** that exceed expectations
-- **Emergency response** best practices
-
-## 💼 Business Applications
-
-1. **New Host Training** - Best practices from successful hosts
-2. **Service Design** - Optimize guest experience based on feedback
-3. **Marketing Strategy** - Highlight features guests value most
-4. **Pricing Strategy** - Set competitive rates based on value perception
-5. **Risk Management** - Avoid common pitfalls that lead to negative reviews
-
-## 🛠️ Technical Stack
-
-- **Data Processing**: Pandas, NumPy, SciPy
-- **NLP**: NLTK, spaCy, TextBlob, Gensim, Transformers
-- **Visualization**: Matplotlib, Seaborn, Plotly, WordCloud
-- **Machine Learning**: Scikit-learn, Statsmodels
-- **Development**: Jupyter, IPython
-
-## 📊 Dataset Information
-
-- **Source**: California Airbnb reviews
-- **Size**: 1,502,058 reviews (823MB)
-- **Time Period**: Multi-year dataset
-- **Features**: 12 columns including sentiment, dates, and processed text
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- Airbnb for providing the review data
-- The open-source NLP community for excellent tools
-- All contributors who helped improve this analysis
-
-## 📞 Contact
-
-For questions or suggestions, please open an issue on GitHub or contact the project maintainer.
-
----
-
-**Note**: This analysis is for educational and business planning purposes. Always comply with local regulations and Airbnb's terms of service when operating a short-term rental business. 
+Code released under the MIT license. Inside Airbnb data are published under CC BY 4.0; review texts are written by Airbnb guests and are not redistributed here.

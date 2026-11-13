@@ -1,0 +1,7 @@
+aspect,partial_rho,ci_low,ci_high
+cleanliness,-0.181,-0.220,-0.143
+checkin,-0.049,-0.083,-0.014
+communication,-0.187,-0.214,-0.159
+location,-0.274,-0.313,-0.235
+accuracy,-0.097,-0.131,-0.065
+value,-0.041,-0.072,-0.010

@@ -1,0 +1,11 @@
+,review_scores_rating,review_scores_accuracy,review_scores_cleanliness,review_scores_checkin,review_scores_communication,review_scores_location,review_scores_value
+vader_mean,0.672,0.640,0.500,0.536,0.612,0.498,0.555
+vader_neg_share,-0.565,-0.533,-0.421,-0.463,-0.512,-0.377,-0.461
+legacy_mean,0.418,0.359,0.439,0.294,0.297,0.322,0.311
+cmp_cleanliness,-0.480,-0.437,-0.477,-0.356,-0.392,-0.308,-0.393
+cmp_checkin,-0.131,-0.074,-0.103,-0.127,-0.111,-0.093,-0.102
+cmp_communication,-0.286,-0.265,-0.236,-0.275,-0.336,-0.194,-0.241
+cmp_location,-0.283,-0.262,-0.212,-0.253,-0.253,-0.375,-0.235
+cmp_accuracy,-0.201,-0.222,-0.138,-0.165,-0.188,-0.120,-0.184
+cmp_value,-0.263,-0.240,-0.196,-0.225,-0.240,-0.176,-0.237
+cmp_any,-0.536,-0.504,-0.484,-0.433,-0.465,-0.427,-0.464
